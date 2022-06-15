@@ -24,7 +24,7 @@ parser <-
 
 opt <- parse_args(parser)
 
-data_type = opt$data_type
+data_type <- opt$data_type
 
 draw_random_data <- "fixed"
 est_variance <- TRUE
