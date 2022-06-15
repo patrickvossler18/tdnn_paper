@@ -7,3 +7,5 @@ Cleaned data that are produced by processing raw input data might also be placed
 Code to generate the simulated data and (if relevant) and facsimile data provided in place of confidential real data might also be placed here. 
 
 Code for data cleaning could potentially also be placed here rather than in `code`.
+
+**To-do: Add citation for the abalone data here.**

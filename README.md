@@ -1,18 +1,24 @@
-JASA Reproducibility Materials Template
+Optimal Nonparametric Inference with Two-Scale Distributional Nearest Neighbors Reproduction Materials
 ================
 
-This GitHub repository contains a suggested template structure for authors who
-submit to JASA (either Applications and Case Studies or Theory and
-Methods) to include materials to reproduce analyses, visualizations, and
-tables.
+This GitHub repository contains the code needed to reproduce the analyses, visualizations, and
+tables for ["Optimal Nonparametric Inference with Two-Scale Distributional Nearest Neighbors"](https://arxiv.org/abs/1808.08469)
+by Emre Demirkaya, Yingying Fan, Lan Gao, Jinchi Lv, Patrick Vossler, Jingbo Wang.
 
-We provide this template as a default structure that we (the JASA Associate Editors of Reproducibility) think could be
-useful for many projects, either as is or with modifications by authors.
-However, the template is intended to be helpful and is by no means
-required of authors. Authors should consult [our reproducibility
-guide](https://jasa-acs.github.io/repro-guide) for details on what is
-required of reproducibility materials submitted with JASA revisions (not
-required upon initial submission).
+## Code
+
+This folder contains the code for the simulation settings as well as for the real data analysis.
+
+* `setting_1.R` contains the code needed to reproduce the results in Tables 1 and 5 of the paper.
+* `setting_2.R` contains the code needed to reproduce the results in Table 2 of the paper.
+* `setting_3.R` contains the code needed to reproduce the results in Table 3 of the paper.
+* `figures_1_2.R` contains the code needed to reproduce Figures 1 and 2 of the paper
+
+**Installation instructions for running the replication code can be found in `code/README.md`.**
+
+## Output 
+
+By default, all of the functions save output to the `output` folder. This can be changed by modifying the `OUTPUT_DIR` variable in each of the files.
 
 ## Why is a template repository useful?
 
