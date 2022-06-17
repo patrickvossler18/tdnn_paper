@@ -1,7 +1,7 @@
 library(tidyverse)
-library(parallel)
-library(energy)
+library(argparser)
 
+OUTPUT_DIR <- "../output"
 
 ################
 # Abalone data #
@@ -9,7 +9,7 @@ library(energy)
 # replace I with 0, M with 1, F with 2
 # The Abalone data can be found at https://archive.ics.uci.edu/ml/datasets/abalone
 
-aba.data <- read.table("abalone.txt", sep = ",") # X in R^8 and Y in R
+aba.data <- read.table("../data/abalone.txt", sep = ",") # X in R^8 and Y in R
 X <- as.matrix(aba.data[, 1:8])
 Y <- as.matrix(aba.data[, 9], ncol = 1)
 
@@ -315,7 +315,22 @@ s_seq <- seq(from = 50, to = 250, by = 5)
 # We repeat the data splitting procedure for 50 times and obtain averaged prediction errors over those 50 repetitions
 ### To increase computing efficiency, we separate the 50 repetitions into 50 parallel computation, and the random seeds are chosen from seq(from=1234, to = 1724, by = 10)
 ## In our computation, the following procedure was run in parallel in 50 different R sessions and used a different seed from seq(from=1234, to = 1724, by = 10) for different R sessions, then we take average of the results from 50 parallel R sessions
-set.seed(1234)
+
+# Parse arguments provided to Rscript command
+parser <- arg_parser("Real data analysis params")
+parser <-
+  add_argument(
+    parser,
+    "--seed_val",
+    type = "integer",
+    default = 1234,
+    help = "Random seed value [default 1234]"
+  )
+
+opt <- parse_args(parser)
+
+seed <- opt$seed_val
+set.seed(seed)
 n.rep <- 1
 res.point_pca_m_3 <- real.mse.pointwise.pca(X, Y, ratio, B, c_seq, s_seq, n.rep, scale_p, m = 3)
 
@@ -328,4 +343,10 @@ n3 <- nrow(X_3)
 tdnn_dnn_results <- (res.point_pca_m_3[1, 1:2] * n1 + res.point_pca_m_3[2, 1:2] * n2 + res.point_pca_m_3[3, 1:2] * n3) / (n1 + n2 + n3)
 
 ## print the results of prediction errors for TDNN and DNN
-tdnn_dnn_results
+print(tdnn_dnn_results)
+
+# write the intermediate results to a dataframe. Append if the file already exists.
+results_df <- data.frame(tdnn=tdnn_dnn_results[1], dnntdnn_dnn_results[2], seed_val=seed_val)
+file_path <- file.path(OUTPUT_DIR, "real_data_analysis_results.csv")
+write_csv(results_df, file_path, append=ifelse(file.exists(file_path),T,F))
+
