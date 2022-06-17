@@ -38,7 +38,7 @@ seed_val <- 1234
 num_reps <- 1000
 n_test <- 100
 
-c_seq = c(2, 4, 6, 8, 10, 15, 20, 25, 30)
+c_seq <- c(2, 4, 6, 8, 10, 15, 20, 25, 30)
 c_seq_fixed <- 2
 s_1_seq <- seq(1, 100, 1)
 dnn_s_seq <- seq(10, 100, 1)
