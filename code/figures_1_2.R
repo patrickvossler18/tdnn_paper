@@ -4,7 +4,7 @@ library(ggpubr)
 library(cowplot)
 
 # Plotting helper functions and constants ---------------------------------
-OUTPUT_DIR <- "output"
+OUTPUT_DIR <- "../output"
 AXIS_TEXT_SIZE <- 22
 HLINE_TEXT_SIZE <- 8
 
