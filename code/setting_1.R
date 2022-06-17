@@ -7,7 +7,7 @@ library(kableExtra)
 library(argparser)
 
 ROUNDING_DIGITS <- 4
-OUTPUT_DIR <- "output"
+OUTPUT_DIR <- "../output"
 
 # Simulation Parameters ---------------------------------------------------
 
@@ -362,75 +362,3 @@ file_path <-
     )
 results_data %>%
     write_rds(., file_path)
-
-
-# Make LaTeX tables -------------------------------------------------------
-setting_1_results_df <- results %>%
-    mutate(
-        data_type = data_type,
-        method = case_when(
-            method == "tdnn_fixed" ~ "TDNN fixed vector",
-            method == "tdnn_rand" ~ "TDNN random vector",
-            method == "dnn_fixed" ~ "DNN fixed vector",
-            method == "dnn_rand" ~ "DNN random vector",
-            method == "knn_fixed" ~ "KNN fixed vector",
-            method == "knn_rand" ~ "KNN random vector"
-        )
-    ) %>%
-    rename(Method = method)
-
-results_fixed <- setting_1_results_df %>%
-    filter(str_ends(Method, "fixed vector")) %>%
-    group_by(Method) %>%
-    summarize(
-        MSE = mean((estimate - mu_fixed) ^ 2),
-        mean_est = mean(estimate),
-        Variance = mean(variance),
-        .groups = "keep"
-    ) %>%
-    summarize(
-        Method = Method,
-        MSE = MSE,
-        `Squared Bias` = (mean_est - mu_fixed_normal) ^ 2,
-        Variance = Variance,
-    ) %>%
-    mutate(Method = str_remove(Method, "fixed vector"))
-
-results_random <- setting_1_results_df %>%
-    ungroup() %>%
-    filter(str_ends(Method, " random vector")) %>%
-    mutate(point = rep(1:n_test, times = 3 * num_reps)) %>%
-    group_by(Method, point) %>%
-    summarize(
-        MSE = mean(loss),
-        mean_est = mean(estimate),
-        Variance = mean(variance)
-    ) %>%
-    summarize(
-        MSE = MSE,
-        `Squared Bias` = (mean_est - mu_rand_normal) ^ 2,
-        Variance = Variance
-    ) %>%
-    summarize(across(everything(), mean)) %>%
-    select(-one_of(c("Method")))
-combined_results <- bind_cols(results_fixed, results_random)
-
-combined_results
-
-# Save table to file ------------------------------------------------------
-combined_results %>%
-    knitr::kable(
-        digits = c(0, rep(ROUNDING_DIGITS, 6)),
-        "latex",
-        booktabs = T,
-        align = "lccccccccc"
-    ) %>%
-    kableExtra::add_header_above(c(
-        " " = 1,
-        "Fixed Test Point" = 3,
-        "Random Test Points" = 3
-    )) %>%
-    gsub("\\.\\.\\.\\d", "", .) %>%
-    kableExtra::save_kable(.,
-                           file.path(OUTPUT_DIR,
-                                     glue::glue("tdnn_setting_1_{data_type}_combined_results_table.tex")))

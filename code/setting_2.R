@@ -7,7 +7,7 @@ library(argparser)
 
 
 ROUNDING_DIGITS <- 4
-OUTPUT_DIR <- "output"
+OUTPUT_DIR <- "../output"
 
 # Simulation Parameters ---------------------------------------------------
 
@@ -337,6 +337,18 @@ results <- map_dfr(1:num_reps, function(i) {
 
 
 # View and Save Results ---------------------------------------------------
+
+results %>%
+  group_by(method) %>%
+  summarize(
+    MSE = mean(loss),
+    Bias = mean(bias),
+    Estimate = mean(estimate),
+    Estimate_SE = sd(estimate),
+    Variance = mean(variance)
+  ) %>%
+  print()
+
 results_data <- list(
   results_df = results,
   c_seq = c_seq,
@@ -359,83 +371,3 @@ file_path <-
   ))
 results_data %>%
   write_rds(., file_path)
-
-
-# Make LaTeX results table ------------------------------------------------
-
-hlinesep <- function(x, y = character()) {
-  if (!length(x)) {
-    return(y)
-  }
-  hlinesep(x[-length(x)], c(rep("", x[length(x)] - 1), "\\hline", y))
-}
-
-
-setting_2_results_df <- results %>%
-  mutate(
-    method = case_when(
-      method == "tdnn_fixed" ~ "TDNN fixed vector",
-      method == "tdnn_rand" ~ "TDNN random vector",
-      method == "dnn_fixed" ~ "DNN fixed vector",
-      method == "dnn_rand" ~ "DNN random vector",
-      method == "knn_fixed" ~ "KNN fixed vector",
-      method == "knn_rand" ~ "KNN random vector"
-    )
-  ) %>%
-  rename(Method = method) %>%
-  mutate(p = p, point = rep(1:(n_test + 1), times = 3 * num_reps))
-
-fixed_results <-
-  setting_2_res_df %>%
-  filter(str_ends(Method, "fixed vector")) %>%
-  group_by(Method, p) %>%
-  summarize(
-    MSE = mean(loss),
-    mean_est = mean(estimate),
-    Variance = mean(variance),
-    .groups = "keep"
-  ) %>%
-  summarize(
-    Method = Method,
-    MSE = MSE,
-    `Squared Bias` = (mean_est - mu_fixed)^2,
-    Variance = Variance,
-  ) %>%
-  mutate(Method = str_remove(Method, " fixed vector"))
-
-random_results <- setting_2_res_df %>%
-  ungroup() %>%
-  filter(str_ends(Method, "random vector")) %>%
-  group_by(Method, p, point) %>%
-  summarize(
-    MSE = mean(loss),
-    mean_est = mean(estimate),
-    Variance = mean(variance)
-  ) %>%
-  summarize(
-    MSE = MSE,
-    `Squared Bias` = (mean_est - mu_rand)^2,
-    Variance = Variance
-  ) %>%
-  summarize(across(everything(), mean), .groups = "drop") %>%
-  select(-one_of(c("Method", "p")))
-
-combined_table <-
-  bind_cols(fixed_results, random_results) %>% arrange(p)
-
-# Save table to file ------------------------------------------------------
-combined_table %>%
-  knitr::kable(
-    digits = c(0, 0, rep(ROUNDING_DIGITS, 6)),
-    "latex",
-    booktabs = T,
-    align = "lccccccccc",
-    linesep = hlinesep(c(3, 3, 3, 3))
-  ) %>%
-  kableExtra::add_header_above(c(
-    " " = 2,
-    "Fixed Test Point" = 3,
-    "Random Test Points" = 3
-  )) %>%
-  gsub("\\.\\.\\.\\d{1,2}", "", .) %>%
-  kableExtra::save_kable(., file.path(OUTPUT_DIR,glue::glue("tdnn_setting_2_combined_results_table.tex")))

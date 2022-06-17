@@ -5,7 +5,7 @@ library(argparser)
 library(kableExtra)
 
 ROUNDING_DIGITS <- 4
-OUTPUT_DIR <- "output"
+OUTPUT_DIR <- "../output"
 
 # Simulation Parameters ---------------------------------------------------
 
